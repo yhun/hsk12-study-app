@@ -3,3 +3,4 @@ node_modules
 *.local
 .env
 .env.*
+.tmp_podcast_segs
