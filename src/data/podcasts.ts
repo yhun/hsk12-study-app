@@ -46,7 +46,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     level: 'HSK 1',
     pdfPages: 'หน้า 41–69',
     audioFile: './podcasts/ep03.mp3',
-    durationLabel: '1:56',
+    durationLabel: '1:54',
     keyPoints: [
       { zh: '房间号码是六幺八。', pinyin: 'Fángjiān hàomǎ shì liù yāo bā.', th: 'หมายเลขห้องคือ 618 (เบอร์/เลขห้อง 1 อ่าน yāo)' },
       { zh: '下午两点', pinyin: 'xiàwǔ liǎng diǎn', th: 'บ่ายสองโมง (ใช้ 两点)' },
@@ -64,7 +64,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     level: 'HSK 1',
     pdfPages: 'หน้า 8–16, 88–89',
     audioFile: './podcasts/ep04.mp3',
-    durationLabel: '1:57',
+    durationLabel: '1:38',
     keyPoints: [
       { zh: '我在图书馆看书。', pinyin: 'Wǒ zài túshūguǎn kànshū.', th: 'ฉันอ่านหนังสืออยู่ที่ห้องสมุด' },
       { zh: '她没有车。', pinyin: 'Tā méiyǒu chē.', th: 'เธอไม่มีรถ (有 ปฏิเสธด้วย 没有 เท่านั้น)' },
@@ -82,7 +82,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     level: 'HSK 2',
     pdfPages: 'หน้า 99–106',
     audioFile: './podcasts/ep05.mp3',
-    durationLabel: '1:50',
+    durationLabel: '1:44',
     keyPoints: [
       { zh: '漂亮的衣服', pinyin: 'piàoliang de yīfu', th: 'เสื้อผ้าที่สวยๆ (หน้าคำนามใช้ 的)' },
       { zh: '慢慢地走过来', pinyin: 'mànmàn de zǒu guòlái', th: 'เดินมาอย่างช้าๆ (หน้ากริยาใช้ 地)' },
@@ -100,7 +100,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     level: 'HSK 2',
     pdfPages: 'หน้า 92–94, 107–112',
     audioFile: './podcasts/ep06.mp3',
-    durationLabel: '1:53',
+    durationLabel: '1:38',
     keyPoints: [
       { zh: '钱呢？', pinyin: 'Qián ne?', th: 'เงินล่ะ? (ถามหาคน/สิ่งของ หรือถามกลับ)' },
       { zh: '再吃一点吧！', pinyin: 'Zài chī yìdiǎn ba!', th: 'กินอีกหน่อยนะ! (ชักชวนใช้ 吧)' },
@@ -119,7 +119,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     level: 'HSK 2',
     pdfPages: 'หน้า 79–86, 113–122',
     audioFile: './podcasts/ep07.mp3',
-    durationLabel: '1:54',
+    durationLabel: '1:39',
     keyPoints: [
       { zh: '我们明天再去看吧。', pinyin: 'Wǒmen míngtiān zài qù kàn ba.', th: 'พรุ่งนี้ค่อยไปดูกันอีกนะ (再 = อนาคต)' },
       { zh: '我们队又进了一个球。', pinyin: 'Wǒmen duì yòu jìn le yí gè qiú.', th: 'ทีมเรายิงเข้าอีกแล้ว (又 = เกิดขึ้นแล้ว)' },
@@ -137,7 +137,7 @@ export const PODCAST_EPISODES: PodcastEpisode[] = [
     level: 'HSK 1-2',
     pdfPages: 'หน้า 123–147',
     audioFile: './podcasts/ep08.mp3',
-    durationLabel: '2:31',
+    durationLabel: '2:18',
     keyPoints: [
       { zh: '快 ↔ 慢 / 大 ↔ 小 / 多 ↔ 少', pinyin: 'kuài-màn / dà-xiǎo / duō-shǎo', th: 'เร็ว-ช้า / ใหญ่-เล็ก / มาก-น้อย' },
       { zh: '热 ↔ 冷 / 新 ↔ 旧 / 进 ↔ 出', pinyin: 'rè-lěng / xīn-jiù / jìn-chū', th: 'ร้อน-หนาว / ใหม่-เก่า / เข้า-ออก' },

@@ -190,7 +190,7 @@ EPISODES: dict[str, list[tuple[str, str]]] = {
         ("th", "เก่งมากค่ะ เหลืออีกแค่ตอนสุดท้าย ตอนที่ 8 เราจะมาฟังท่องคำตรงข้ามและเทคนิคเดาคำจากรากศัพท์กันนะคะ"),
     ],
     "ep08": [
-        ("th", "สวัสดีค่ะ มาถึงตอนที่ 8 ตอนสุดท้ายของซีรีส์พอดแคสต์ เอชเอสเค 1 และ 2 แล้วนะคะ วันนี้ฟังเพลินๆ เพื่อทวนคำศัพท์ตรงกันข้าม 24 คู่ยอดฮิต และเทคนิคสังเกตรากศัพท์ในห้องสอบค่ะ"),
+        ("th", "สวัสดีค่ะ มาถึงตอนที่ 8 ตอนสุดท้ายของซีรีส์พอดแคสต์ เอชเอสเค 1 และ 2 แล้วนะคะ วันนี้ฟังเพลินๆ เพื่อทวนคำศัพท์ตรงกันข้าม 17 คู่ยอดฮิต และเทคนิคสังเกตรากศัพท์ในห้องสอบค่ะ"),
         ("pause", ""),
         ("th", "ลองฟังคำภาษาจีนและแปลความหมายตามในใจไปด้วยกันนะคะ ชุดแรก คำบอกขนาด ทิศทาง และเวลา เร็ว กับ ช้า"),
         ("zh", "快，慢"),
@@ -254,17 +254,17 @@ async def synth_seg(sem: asyncio.Semaphore, voice: str, text: str, path: Path, r
     if path.exists() and path.stat().st_size > 0:
         return
     async with sem:
-        for attempt in range(5):
+        for attempt in range(6):
             try:
                 comm = edge_tts.Communicate(text, voice=voice, rate=rate)
                 await comm.save(str(path))
                 if path.exists() and path.stat().st_size > 0:
-                    await asyncio.sleep(0.25)
+                    await asyncio.sleep(0.45)
                     return
             except Exception as exc:
-                if attempt == 4:
+                if attempt == 5:
                     raise RuntimeError(f"Failed synth {path.name} ({voice}): {exc}") from exc
-                await asyncio.sleep(2.0 * (attempt + 1))
+                await asyncio.sleep(3.0 * (attempt + 1))
 
 
 def make_silence(duration_sec: float, out_path: Path) -> None:
@@ -317,7 +317,7 @@ async def build_episode(ep_id: str, segments: list[tuple[str, str]], pause_short
 
     ep_tmp = TMP_DIR / ep_id
     ep_tmp.mkdir(parents=True, exist_ok=True)
-    sem = asyncio.Semaphore(2)
+    sem = asyncio.Semaphore(1)
 
     concat_entries: list[Path] = []
     tasks = []
@@ -406,8 +406,6 @@ async def build_episode(ep_id: str, segments: list[tuple[str, str]], pause_short
 
 async def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    if TMP_DIR.exists():
-        shutil.rmtree(TMP_DIR)
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
     pause_short = TMP_DIR / "pause_short.mp3"
