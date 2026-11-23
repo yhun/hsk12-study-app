@@ -1,0 +1,17 @@
+{
+  "name": "HSK 1–2 ติวสอบทุกวัน",
+  "short_name": "HSK 1-2",
+  "description": "เตรียมสอบภาษาจีน HSK 1-2 วันละ 3–15 นาที จากชีทสรุปไวยากรณ์ 155 หน้า",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FAF8F5",
+  "theme_color": "#C83E37",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
