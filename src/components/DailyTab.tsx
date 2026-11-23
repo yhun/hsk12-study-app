@@ -6,7 +6,10 @@ import {
   CheckCircle2,
   Clock,
   Flame,
+  Headphones,
   Layers,
+  Mic,
+  PenTool,
   Play,
   RotateCcw,
   Sparkles,
@@ -17,7 +20,14 @@ import { ANTONYMS } from '../data/antonyms';
 import { LESSONS } from '../data/lessons';
 import { QUIZZES } from '../data/quizzes';
 import { RADICALS } from '../data/radicals';
-import { SessionMinutes, UserProgress } from '../data/types';
+import {
+  LISTENING_ITEMS,
+  READING_PASSAGES,
+  SENTENCE_BUILDERS,
+  SPEAKING_ITEMS,
+  WRITING_CHARS,
+} from '../data/skills';
+import { SessionMinutes, SkillMode, UserProgress } from '../data/types';
 import { getLocalDateStr } from '../hooks/useProgress';
 import { SpeakButton } from './SpeakButton';
 
@@ -31,6 +41,7 @@ interface DailyTabProps {
   onFinishDailySession: () => void;
   onOpenWrongQuizzes: () => void;
   onOpenLesson: (lessonId: string) => void;
+  onOpenSkill: (skill: SkillMode) => void;
 }
 
 const DURATION_CONFIG: Record<
@@ -55,6 +66,7 @@ export function DailyTab({
   onFinishDailySession,
   onOpenWrongQuizzes,
   onOpenLesson,
+  onOpenSkill,
 }: DailyTabProps) {
   const [runnerActive, setRunnerActive] = useState(false);
   const [phase, setPhase] = useState<'lesson' | 'antonym' | 'quiz' | 'done'>('lesson');
@@ -519,6 +531,66 @@ export function DailyTab({
           </strong>
           <span className="muted">กดเพื่อฝึกซ้ำเฉพาะข้อที่พลาด</span>
         </button>
+      </section>
+
+      {/* 4-Skill Quick Launcher */}
+      <section className="card">
+        <div className="section-head mb-12">
+          <div>
+            <h3>ฝึก 4 ทักษะ (ฟัง · พูด · อ่าน · เขียน)</h3>
+            <p className="muted">เลือกทักษะที่อยากฝึกเสริมได้ทันทีทุกวัน</p>
+          </div>
+        </div>
+        <div className="skill-quick-grid">
+          <button type="button" className="skill-quick-card" onClick={() => onOpenSkill('listening')}>
+            <div className="mode-icon red">
+              <Headphones size={20} />
+            </div>
+            <div>
+              <strong>ฟัง (Listening)</strong>
+              <div className="muted">
+                {progress.completedListening.length}/{LISTENING_ITEMS.length} ข้อ
+              </div>
+            </div>
+          </button>
+
+          <button type="button" className="skill-quick-card" onClick={() => onOpenSkill('speaking')}>
+            <div className="mode-icon jade">
+              <Mic size={20} />
+            </div>
+            <div>
+              <strong>พูด (Speaking)</strong>
+              <div className="muted">
+                {progress.completedSpeaking.length}/{SPEAKING_ITEMS.length} ประโยค
+              </div>
+            </div>
+          </button>
+
+          <button type="button" className="skill-quick-card" onClick={() => onOpenSkill('reading')}>
+            <div className="mode-icon amber">
+              <BookOpen size={20} />
+            </div>
+            <div>
+              <strong>อ่าน (Reading)</strong>
+              <div className="muted">
+                {progress.completedReading.length}/{READING_PASSAGES.length} บท
+              </div>
+            </div>
+          </button>
+
+          <button type="button" className="skill-quick-card" onClick={() => onOpenSkill('writing')}>
+            <div className="mode-icon warn">
+              <PenTool size={20} />
+            </div>
+            <div>
+              <strong>เขียน (Writing)</strong>
+              <div className="muted">
+                {progress.practicedWriting.length + progress.completedSentences.length}/
+                {WRITING_CHARS.length + SENTENCE_BUILDERS.length} รายการ
+              </div>
+            </div>
+          </button>
+        </div>
       </section>
 
       {/* Overall Mastery Progress */}

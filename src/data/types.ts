@@ -1,5 +1,7 @@
 export type LevelTag = 'HSK 1' | 'HSK 2' | 'HSK 1-2';
 
+export type SkillMode = 'listening' | 'speaking' | 'reading' | 'writing';
+
 export interface Example {
   zh: string;
   pinyin: string;
@@ -80,6 +82,76 @@ export interface QuizQuestion {
   explanation: string;
 }
 
+export interface ListeningItem {
+  id: string;
+  level: 'HSK 1' | 'HSK 2';
+  pdfPage: string;
+  topic: string;
+  zh: string;
+  pinyin: string;
+  th: string;
+  question: string;
+  options: string[];
+  answerIndex: number;
+  explanation: string;
+}
+
+export interface SpeakingItem {
+  id: string;
+  level: 'HSK 1' | 'HSK 2';
+  pdfPage: string;
+  zh: string;
+  pinyin: string;
+  th: string;
+  focusTip: string;
+}
+
+export interface ReadingLine {
+  speaker?: string;
+  zh: string;
+  pinyin: string;
+  th: string;
+}
+
+export interface ReadingQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+  answerIndex: number;
+  explanation: string;
+}
+
+export interface ReadingPassage {
+  id: string;
+  title: string;
+  level: 'HSK 1' | 'HSK 2';
+  pdfPages: string;
+  lines: ReadingLine[];
+  vocabHints: AntonymWord[];
+  questions: ReadingQuestion[];
+}
+
+export interface WritingChar {
+  id: string;
+  char: string;
+  pinyin: string;
+  th: string;
+  radical: string;
+  strokeTip: string;
+  exampleWord: AntonymWord;
+  pdfPage: string;
+}
+
+export interface SentenceBuilderItem {
+  id: string;
+  level: 'HSK 1' | 'HSK 2';
+  pdfPage: string;
+  th: string;
+  tokens: string[];
+  pinyin: string;
+  explanation: string;
+}
+
 export type SessionMinutes = 3 | 5 | 10 | 15;
 
 export interface UserProgress {
@@ -92,6 +164,11 @@ export interface UserProgress {
   masteredRadicals: string[];
   wrongQuizIds: string[];
   solvedQuizIds: string[];
+  completedListening: string[];
+  completedSpeaking: string[];
+  completedReading: string[];
+  practicedWriting: string[];
+  completedSentences: string[];
   sessionMinutes: SessionMinutes;
   showPinyin: boolean;
   totalSessionsCompleted: number;

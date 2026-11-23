@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { BookOpen, Eye, EyeOff, Flame, Layers, Settings, Target } from 'lucide-react';
+import { BookOpen, Eye, EyeOff, Flame, Headphones, Layers, Settings, Target } from 'lucide-react';
 import { DailyTab } from './components/DailyTab';
 import { FlashcardsTab } from './components/FlashcardsTab';
 import { LessonsTab } from './components/LessonsTab';
 import { QuizTab } from './components/QuizTab';
 import { SettingsModal } from './components/SettingsModal';
+import { SkillsTab } from './components/SkillsTab';
+import { SkillMode } from './data/types';
 import { useProgress } from './hooks/useProgress';
 
-type TabKey = 'daily' | 'lessons' | 'flashcards' | 'quiz';
+type TabKey = 'daily' | 'lessons' | 'skills' | 'flashcards' | 'quiz';
 
 export function App() {
   const {
@@ -18,6 +20,7 @@ export function App() {
     markAntonym,
     markRadical,
     recordQuizAnswer,
+    markSkillItem,
     setSessionMinutes,
     toggleShowPinyin,
     importProgress,
@@ -26,12 +29,20 @@ export function App() {
 
   const [tab, setTab] = useState<TabKey>('daily');
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<SkillMode>('listening');
+  const [skillSignal, setSkillSignal] = useState(0);
   const [wrongQuizSignal, setWrongQuizSignal] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const openLessonFromDaily = (lessonId: string) => {
     setSelectedLessonId(lessonId);
     setTab('lessons');
+  };
+
+  const openSkillFromDaily = (skill: SkillMode) => {
+    setSelectedSkill(skill);
+    setSkillSignal((s) => s + 1);
+    setTab('skills');
   };
 
   const openWrongQuizzes = () => {
@@ -60,6 +71,9 @@ export function App() {
             </button>
             <button type="button" className={tab === 'lessons' ? 'active' : ''} onClick={() => setTab('lessons')}>
               <BookOpen size={16} /> บทเรียน
+            </button>
+            <button type="button" className={tab === 'skills' ? 'active' : ''} onClick={() => setTab('skills')}>
+              <Headphones size={16} /> 4 ทักษะ
             </button>
             <button type="button" className={tab === 'flashcards' ? 'active' : ''} onClick={() => setTab('flashcards')}>
               <Layers size={16} /> แฟลชการ์ด
@@ -108,6 +122,7 @@ export function App() {
             onFinishDailySession={() => recordStudyToday(true)}
             onOpenWrongQuizzes={openWrongQuizzes}
             onOpenLesson={openLessonFromDaily}
+            onOpenSkill={openSkillFromDaily}
           />
         )}
 
@@ -118,6 +133,15 @@ export function App() {
             selectedLessonId={selectedLessonId}
             onSelectLesson={setSelectedLessonId}
             onToggleComplete={toggleLessonComplete}
+          />
+        )}
+
+        {tab === 'skills' && (
+          <SkillsTab
+            progress={progress}
+            initialSkill={selectedSkill}
+            skillSignal={skillSignal}
+            onMarkSkill={markSkillItem}
           />
         )}
 
@@ -147,19 +171,23 @@ export function App() {
       {/* Bottom Navigation (Mobile) */}
       <nav className="mobile-nav" aria-label="แถบนำทางมือถือ">
         <button type="button" className={tab === 'daily' ? 'active' : ''} onClick={() => setTab('daily')}>
-          <Flame size={20} />
+          <Flame size={19} />
           <span>วันนี้</span>
         </button>
         <button type="button" className={tab === 'lessons' ? 'active' : ''} onClick={() => setTab('lessons')}>
-          <BookOpen size={20} />
+          <BookOpen size={19} />
           <span>บทเรียน</span>
         </button>
+        <button type="button" className={tab === 'skills' ? 'active' : ''} onClick={() => setTab('skills')}>
+          <Headphones size={19} />
+          <span>4 ทักษะ</span>
+        </button>
         <button type="button" className={tab === 'flashcards' ? 'active' : ''} onClick={() => setTab('flashcards')}>
-          <Layers size={20} />
-          <span>แฟลชการ์ด</span>
+          <Layers size={19} />
+          <span>การ์ด</span>
         </button>
         <button type="button" className={tab === 'quiz' ? 'active' : ''} onClick={() => setTab('quiz')}>
-          <Target size={20} />
+          <Target size={19} />
           <span>ฝึกสอบ</span>
         </button>
       </nav>

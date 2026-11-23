@@ -26,6 +26,11 @@ const DEFAULT_PROGRESS: UserProgress = {
   masteredRadicals: [],
   wrongQuizIds: [],
   solvedQuizIds: [],
+  completedListening: [],
+  completedSpeaking: [],
+  completedReading: [],
+  practicedWriting: [],
+  completedSentences: [],
   sessionMinutes: 5,
   showPinyin: true,
   totalSessionsCompleted: 0,
@@ -55,6 +60,11 @@ function loadInitialProgress(): UserProgress {
       masteredRadicals: Array.isArray(parsed.masteredRadicals) ? parsed.masteredRadicals : [],
       wrongQuizIds: Array.isArray(parsed.wrongQuizIds) ? parsed.wrongQuizIds : [],
       solvedQuizIds: Array.isArray(parsed.solvedQuizIds) ? parsed.solvedQuizIds : [],
+      completedListening: Array.isArray(parsed.completedListening) ? parsed.completedListening : [],
+      completedSpeaking: Array.isArray(parsed.completedSpeaking) ? parsed.completedSpeaking : [],
+      completedReading: Array.isArray(parsed.completedReading) ? parsed.completedReading : [],
+      practicedWriting: Array.isArray(parsed.practicedWriting) ? parsed.practicedWriting : [],
+      completedSentences: Array.isArray(parsed.completedSentences) ? parsed.completedSentences : [],
       studyDates: Array.isArray(parsed.studyDates) ? parsed.studyDates : [],
     };
     return {
@@ -64,6 +74,29 @@ function loadInitialProgress(): UserProgress {
   } catch {
     return DEFAULT_PROGRESS;
   }
+}
+
+function applyStudyToday(prev: UserProgress, incrementSession = false): UserProgress {
+  const today = getLocalDateStr();
+  const yesterday = getYesterdayDateStr();
+  const alreadyStudiedToday = prev.lastStudyDate === today;
+  let nextStreak = prev.streak;
+  if (!alreadyStudiedToday) {
+    nextStreak = prev.lastStudyDate === yesterday ? prev.streak + 1 : 1;
+  }
+  const nextDates = prev.studyDates.includes(today)
+    ? prev.studyDates
+    : [...prev.studyDates, today].slice(-60);
+
+  return {
+    ...prev,
+    streak: nextStreak,
+    lastStudyDate: today,
+    studyDates: nextDates,
+    totalSessionsCompleted: incrementSession
+      ? prev.totalSessionsCompleted + 1
+      : prev.totalSessionsCompleted,
+  };
 }
 
 export function useProgress() {
@@ -78,37 +111,10 @@ export function useProgress() {
   }, [progress]);
 
   const recordStudyToday = useCallback((incrementSession = false) => {
-    const today = getLocalDateStr();
-    const yesterday = getYesterdayDateStr();
-    setProgress((prev) => {
-      const alreadyStudiedToday = prev.lastStudyDate === today;
-      let nextStreak = prev.streak;
-      if (!alreadyStudiedToday) {
-        if (prev.lastStudyDate === yesterday) {
-          nextStreak = prev.streak + 1;
-        } else {
-          nextStreak = 1;
-        }
-      }
-      const nextDates = prev.studyDates.includes(today)
-        ? prev.studyDates
-        : [...prev.studyDates, today].slice(-60);
-
-      return {
-        ...prev,
-        streak: nextStreak,
-        lastStudyDate: today,
-        studyDates: nextDates,
-        totalSessionsCompleted: incrementSession
-          ? prev.totalSessionsCompleted + 1
-          : prev.totalSessionsCompleted,
-      };
-    });
+    setProgress((prev) => applyStudyToday(prev, incrementSession));
   }, []);
 
   const toggleLessonComplete = useCallback((lessonId: string, forceComplete?: boolean) => {
-    const today = getLocalDateStr();
-    const yesterday = getYesterdayDateStr();
     setProgress((prev) => {
       const exists = prev.completedLessons.includes(lessonId);
       const shouldAdd = forceComplete !== undefined ? forceComplete : !exists;
@@ -122,24 +128,7 @@ export function useProgress() {
       if (!shouldAdd) {
         return { ...prev, completedLessons };
       }
-
-      const alreadyToday = prev.lastStudyDate === today;
-      const nextStreak = alreadyToday
-        ? prev.streak
-        : prev.lastStudyDate === yesterday
-          ? prev.streak + 1
-          : 1;
-      const nextDates = prev.studyDates.includes(today)
-        ? prev.studyDates
-        : [...prev.studyDates, today].slice(-60);
-
-      return {
-        ...prev,
-        completedLessons,
-        streak: nextStreak,
-        lastStudyDate: today,
-        studyDates: nextDates,
-      };
+      return applyStudyToday({ ...prev, completedLessons }, false);
     });
   }, []);
 
@@ -182,6 +171,24 @@ export function useProgress() {
     });
   }, []);
 
+  const markSkillItem = useCallback(
+    (skill: 'listening' | 'speaking' | 'reading' | 'writing' | 'sentence', id: string) => {
+      setProgress((prev) => {
+        const keyMap = {
+          listening: 'completedListening',
+          speaking: 'completedSpeaking',
+          reading: 'completedReading',
+          writing: 'practicedWriting',
+          sentence: 'completedSentences',
+        } as const;
+        const field = keyMap[skill];
+        const nextList = Array.from(new Set([...prev[field], id]));
+        return applyStudyToday({ ...prev, [field]: nextList }, false);
+      });
+    },
+    []
+  );
+
   const setSessionMinutes = useCallback((minutes: SessionMinutes) => {
     setProgress((prev) => ({ ...prev, sessionMinutes: minutes }));
   }, []);
@@ -197,6 +204,18 @@ export function useProgress() {
       const merged: UserProgress = {
         ...DEFAULT_PROGRESS,
         ...parsed,
+        completedLessons: Array.isArray(parsed.completedLessons) ? parsed.completedLessons : [],
+        masteredAntonyms: Array.isArray(parsed.masteredAntonyms) ? parsed.masteredAntonyms : [],
+        reviewAntonyms: Array.isArray(parsed.reviewAntonyms) ? parsed.reviewAntonyms : [],
+        masteredRadicals: Array.isArray(parsed.masteredRadicals) ? parsed.masteredRadicals : [],
+        wrongQuizIds: Array.isArray(parsed.wrongQuizIds) ? parsed.wrongQuizIds : [],
+        solvedQuizIds: Array.isArray(parsed.solvedQuizIds) ? parsed.solvedQuizIds : [],
+        completedListening: Array.isArray(parsed.completedListening) ? parsed.completedListening : [],
+        completedSpeaking: Array.isArray(parsed.completedSpeaking) ? parsed.completedSpeaking : [],
+        completedReading: Array.isArray(parsed.completedReading) ? parsed.completedReading : [],
+        practicedWriting: Array.isArray(parsed.practicedWriting) ? parsed.practicedWriting : [],
+        completedSentences: Array.isArray(parsed.completedSentences) ? parsed.completedSentences : [],
+        studyDates: Array.isArray(parsed.studyDates) ? parsed.studyDates : [],
       };
       setProgress({
         ...merged,
@@ -220,6 +239,7 @@ export function useProgress() {
     markAntonym,
     markRadical,
     recordQuizAnswer,
+    markSkillItem,
     setSessionMinutes,
     toggleShowPinyin,
     importProgress,
