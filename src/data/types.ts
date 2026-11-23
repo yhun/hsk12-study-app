@@ -1,6 +1,6 @@
 export type LevelTag = 'HSK 1' | 'HSK 2' | 'HSK 1-2';
 
-export type SkillMode = 'listening' | 'speaking' | 'reading' | 'writing';
+export type SkillMode = 'listening' | 'speaking' | 'reading' | 'writing' | 'podcast';
 
 export interface Example {
   zh: string;
@@ -152,6 +152,24 @@ export interface SentenceBuilderItem {
   explanation: string;
 }
 
+export interface PodcastKeyPoint {
+  zh: string;
+  pinyin: string;
+  th: string;
+}
+
+export interface PodcastEpisode {
+  id: string;
+  number: number;
+  title: string;
+  subtitle: string;
+  level: LevelTag;
+  pdfPages: string;
+  audioFile: string;
+  durationLabel: string;
+  keyPoints: PodcastKeyPoint[];
+}
+
 export type SessionMinutes = 3 | 5 | 10 | 15;
 
 export interface UserProgress {
@@ -169,6 +187,7 @@ export interface UserProgress {
   completedReading: string[];
   practicedWriting: string[];
   completedSentences: string[];
+  completedPodcasts: string[];
   sessionMinutes: SessionMinutes;
   showPinyin: boolean;
   totalSessionsCompleted: number;

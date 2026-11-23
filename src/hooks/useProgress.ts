@@ -31,6 +31,7 @@ const DEFAULT_PROGRESS: UserProgress = {
   completedReading: [],
   practicedWriting: [],
   completedSentences: [],
+  completedPodcasts: [],
   sessionMinutes: 5,
   showPinyin: true,
   totalSessionsCompleted: 0,
@@ -65,6 +66,7 @@ function loadInitialProgress(): UserProgress {
       completedReading: Array.isArray(parsed.completedReading) ? parsed.completedReading : [],
       practicedWriting: Array.isArray(parsed.practicedWriting) ? parsed.practicedWriting : [],
       completedSentences: Array.isArray(parsed.completedSentences) ? parsed.completedSentences : [],
+      completedPodcasts: Array.isArray(parsed.completedPodcasts) ? parsed.completedPodcasts : [],
       studyDates: Array.isArray(parsed.studyDates) ? parsed.studyDates : [],
     };
     return {
@@ -172,7 +174,7 @@ export function useProgress() {
   }, []);
 
   const markSkillItem = useCallback(
-    (skill: 'listening' | 'speaking' | 'reading' | 'writing' | 'sentence', id: string) => {
+    (skill: 'listening' | 'speaking' | 'reading' | 'writing' | 'sentence' | 'podcast', id: string) => {
       setProgress((prev) => {
         const keyMap = {
           listening: 'completedListening',
@@ -180,6 +182,7 @@ export function useProgress() {
           reading: 'completedReading',
           writing: 'practicedWriting',
           sentence: 'completedSentences',
+          podcast: 'completedPodcasts',
         } as const;
         const field = keyMap[skill];
         const nextList = Array.from(new Set([...prev[field], id]));
@@ -215,6 +218,7 @@ export function useProgress() {
         completedReading: Array.isArray(parsed.completedReading) ? parsed.completedReading : [],
         practicedWriting: Array.isArray(parsed.practicedWriting) ? parsed.practicedWriting : [],
         completedSentences: Array.isArray(parsed.completedSentences) ? parsed.completedSentences : [],
+        completedPodcasts: Array.isArray(parsed.completedPodcasts) ? parsed.completedPodcasts : [],
         studyDates: Array.isArray(parsed.studyDates) ? parsed.studyDates : [],
       };
       setProgress({

@@ -11,6 +11,7 @@ import {
   Mic,
   PenTool,
   Play,
+  Radio,
   RotateCcw,
   Sparkles,
   Target,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 import { ANTONYMS } from '../data/antonyms';
 import { LESSONS } from '../data/lessons';
+import { PODCAST_EPISODES } from '../data/podcasts';
 import { QUIZZES } from '../data/quizzes';
 import { RADICALS } from '../data/radicals';
 import {
@@ -591,6 +593,21 @@ export function DailyTab({
             </div>
           </button>
         </div>
+
+        <button type="button" className="podcast-banner-btn" onClick={() => onOpenSkill('podcast')}>
+          <div className="podcast-banner-left">
+            <span className="podcast-banner-icon">
+              <Radio size={20} />
+            </span>
+            <div>
+              <strong>พอดแคสต์ครูสอนจีน (ฟังเพลินๆ ยาวๆ {PODCAST_EPISODES.length} ตอน)</strong>
+              <div className="muted">
+                ครูไทยอธิบาย + เสียงจีนเจ้าของภาษา · ฟังแล้ว {progress.completedPodcasts.length}/{PODCAST_EPISODES.length} ตอน
+              </div>
+            </div>
+          </div>
+          <span className="pill">เปิดฟังเลย →</span>
+        </button>
       </section>
 
       {/* Overall Mastery Progress */}

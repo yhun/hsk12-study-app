@@ -11,6 +11,7 @@ import {
   MicOff,
   PenTool,
   Puzzle,
+  Radio,
   RotateCcw,
   Volume2,
   XCircle,
@@ -22,8 +23,10 @@ import {
   SPEAKING_ITEMS,
   WRITING_CHARS,
 } from '../data/skills';
-import { SkillMode, UserProgress } from '../data/types';
+import { PodcastEpisode, SkillMode, UserProgress } from '../data/types';
+import { SleepTimerMode } from '../hooks/usePodcastPlayer';
 import { speakChinese } from '../utils/speech';
+import { PodcastView } from './PodcastView';
 import { SpeakButton } from './SpeakButton';
 import { WritingCanvas } from './WritingCanvas';
 
@@ -79,15 +82,38 @@ function deterministicShuffle(tokens: string[], seedStr: string): { token: strin
   return copy;
 }
 
-interface SkillsTabProps {
-  progress: UserProgress;
-  initialSkill: SkillMode;
-  skillSignal: number;
-  onMarkSkill: (skill: 'listening' | 'speaking' | 'reading' | 'writing' | 'sentence', id: string) => void;
+interface PodcastController {
+  episodes: PodcastEpisode[];
+  currentEpisode: PodcastEpisode | null;
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  playbackRate: 0.75 | 1 | 1.25;
+  autoPlayNext: boolean;
+  sleepTimer: SleepTimerMode;
+  sleepMinutesLeft: number | null;
+  playEpisode: (ep: PodcastEpisode) => void;
+  togglePlay: () => void;
+  seekTo: (sec: number) => void;
+  skipBy: (delta: number) => void;
+  nextEpisode: () => void;
+  prevEpisode: () => void;
+  changePlaybackRate: (r: 0.75 | 1 | 1.25) => void;
+  setAutoPlayNext: (val: boolean) => void;
+  chooseSleepTimer: (mode: SleepTimerMode) => void;
 }
 
-export function SkillsTab({ progress, initialSkill, skillSignal, onMarkSkill }: SkillsTabProps) {
-  const [skill, setSkill] = useState<SkillMode>(initialSkill);
+interface SkillsTabProps {
+  progress: UserProgress;
+  activeSkill: SkillMode;
+  onChangeSkill: (skill: SkillMode) => void;
+  onMarkSkill: (skill: 'listening' | 'speaking' | 'reading' | 'writing' | 'sentence', id: string) => void;
+  podcast: PodcastController;
+}
+
+export function SkillsTab({ progress, activeSkill, onChangeSkill, onMarkSkill, podcast }: SkillsTabProps) {
+  const skill = activeSkill;
+  const setSkill = onChangeSkill;
   const [levelFilter, setLevelFilter] = useState<'ALL' | 'HSK 1' | 'HSK 2'>('ALL');
 
   // Listening state
@@ -113,10 +139,6 @@ export function SkillsTab({ progress, initialSkill, skillSignal, onMarkSkill }: 
   const [sbIdx, setSbIdx] = useState(0);
   const [pickedKeys, setPickedKeys] = useState<string[]>([]);
   const [sbChecked, setSbChecked] = useState<'idle' | 'ok' | 'err'>('idle');
-
-  useEffect(() => {
-    setSkill(initialSkill);
-  }, [initialSkill, skillSignal]);
 
   useEffect(() => {
     return () => {
@@ -209,8 +231,8 @@ export function SkillsTab({ progress, initialSkill, skillSignal, onMarkSkill }: 
 
   return (
     <div className="stack">
-      {/* 4-Skill Selector */}
-      <div className="skill-tabs" role="tablist" aria-label="ฝึก 4 ทักษะ">
+      {/* 4-Skill + Podcast Selector */}
+      <div className="skill-tabs skill-tabs-5" role="tablist" aria-label="ฝึกทักษะภาษาจีน">
         <button
           type="button"
           className={`skill-tab ${skill === 'listening' ? 'active' : ''}`}
@@ -246,10 +268,18 @@ export function SkillsTab({ progress, initialSkill, skillSignal, onMarkSkill }: 
             {WRITING_CHARS.length + SENTENCE_BUILDERS.length})
           </span>
         </button>
+        <button
+          type="button"
+          className={`skill-tab ${skill === 'podcast' ? 'active' : ''}`}
+          onClick={() => setSkill('podcast')}
+        >
+          <Radio size={16} />
+          <span>พอดแคสต์ ({progress.completedPodcasts.length}/{podcast.episodes.length})</span>
+        </button>
       </div>
 
-      {/* Level Filter (hidden on character tracing sub-mode since characters cover HSK1-2) */}
-      {!(skill === 'writing' && writeMode === 'char') && (
+      {/* Level Filter */}
+      {skill !== 'podcast' && !(skill === 'writing' && writeMode === 'char') && (
         <div className="filter-bar">
           {(['ALL', 'HSK 1', 'HSK 2'] as const).map((lvl) => (
             <button
@@ -903,6 +933,31 @@ export function SkillsTab({ progress, initialSkill, skillSignal, onMarkSkill }: 
             );
           })() : null}
         </div>
+      )}
+
+      {/* ==================== 5. PODCAST (พอดแคสต์ครูสอนจีน) ==================== */}
+      {skill === 'podcast' && (
+        <PodcastView
+          completedPodcasts={progress.completedPodcasts}
+          showPinyin={progress.showPinyin}
+          currentEpisode={podcast.currentEpisode}
+          isPlaying={podcast.isPlaying}
+          currentTime={podcast.currentTime}
+          duration={podcast.duration}
+          playbackRate={podcast.playbackRate}
+          autoPlayNext={podcast.autoPlayNext}
+          sleepTimer={podcast.sleepTimer}
+          sleepMinutesLeft={podcast.sleepMinutesLeft}
+          onPlayEpisode={podcast.playEpisode}
+          onTogglePlay={podcast.togglePlay}
+          onSeek={podcast.seekTo}
+          onSkip={podcast.skipBy}
+          onNext={podcast.nextEpisode}
+          onPrev={podcast.prevEpisode}
+          onChangeRate={podcast.changePlaybackRate}
+          onToggleAutoPlayNext={() => podcast.setAutoPlayNext(!podcast.autoPlayNext)}
+          onChooseSleepTimer={podcast.chooseSleepTimer}
+        />
       )}
     </div>
   );

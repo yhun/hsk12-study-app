@@ -3,10 +3,12 @@ import { BookOpen, Eye, EyeOff, Flame, Headphones, Layers, Settings, Target } fr
 import { DailyTab } from './components/DailyTab';
 import { FlashcardsTab } from './components/FlashcardsTab';
 import { LessonsTab } from './components/LessonsTab';
+import { MiniPodcastBar } from './components/MiniPodcastBar';
 import { QuizTab } from './components/QuizTab';
 import { SettingsModal } from './components/SettingsModal';
 import { SkillsTab } from './components/SkillsTab';
 import { SkillMode } from './data/types';
+import { usePodcastPlayer } from './hooks/usePodcastPlayer';
 import { useProgress } from './hooks/useProgress';
 
 type TabKey = 'daily' | 'lessons' | 'skills' | 'flashcards' | 'quiz';
@@ -27,10 +29,13 @@ export function App() {
     resetProgress,
   } = useProgress();
 
+  const podcast = usePodcastPlayer({
+    onCompleteEpisode: (epId) => markSkillItem('podcast', epId),
+  });
+
   const [tab, setTab] = useState<TabKey>('daily');
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<SkillMode>('listening');
-  const [skillSignal, setSkillSignal] = useState(0);
   const [wrongQuizSignal, setWrongQuizSignal] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -41,7 +46,6 @@ export function App() {
 
   const openSkillFromDaily = (skill: SkillMode) => {
     setSelectedSkill(skill);
-    setSkillSignal((s) => s + 1);
     setTab('skills');
   };
 
@@ -139,9 +143,10 @@ export function App() {
         {tab === 'skills' && (
           <SkillsTab
             progress={progress}
-            initialSkill={selectedSkill}
-            skillSignal={skillSignal}
+            activeSkill={selectedSkill}
+            onChangeSkill={setSelectedSkill}
             onMarkSkill={markSkillItem}
+            podcast={podcast}
           />
         )}
 
@@ -167,6 +172,21 @@ export function App() {
           />
         )}
       </main>
+
+      {/* Persistent Mini Podcast Player */}
+      {podcast.currentEpisode && !(tab === 'skills' && selectedSkill === 'podcast') && (
+        <MiniPodcastBar
+          episode={podcast.currentEpisode}
+          isPlaying={podcast.isPlaying}
+          onTogglePlay={podcast.togglePlay}
+          onNext={podcast.nextEpisode}
+          onOpenPodcast={() => {
+            setSelectedSkill('podcast');
+            setTab('skills');
+          }}
+          onClose={podcast.stopAndClose}
+        />
+      )}
 
       {/* Bottom Navigation (Mobile) */}
       <nav className="mobile-nav" aria-label="แถบนำทางมือถือ">
