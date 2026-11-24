@@ -257,9 +257,14 @@ export function FlashcardsTab({
                     type="button"
                     className="btn-outline"
                     onClick={() => {
+                      const removesCurrent = filter === 'mastered';
                       onMarkAntonym(pair.id, 'review');
                       setFlipped(false);
-                      setIndex((i) => (i + 1) % filteredAntonyms.length);
+                      if (removesCurrent) {
+                        setIndex((i) => (i >= filteredAntonyms.length - 1 ? 0 : i));
+                      } else {
+                        setIndex((i) => (i + 1) % filteredAntonyms.length);
+                      }
                     }}
                   >
                     <RotateCcw size={16} />
@@ -269,9 +274,14 @@ export function FlashcardsTab({
                     type="button"
                     className="btn-jade"
                     onClick={() => {
+                      const removesCurrent = filter === 'unmastered' || filter === 'review';
                       onMarkAntonym(pair.id, 'mastered');
                       setFlipped(false);
-                      setIndex((i) => (i + 1) % filteredAntonyms.length);
+                      if (removesCurrent) {
+                        setIndex((i) => (i >= filteredAntonyms.length - 1 ? 0 : i));
+                      } else {
+                        setIndex((i) => (i + 1) % filteredAntonyms.length);
+                      }
                     }}
                   >
                     <CheckCircle2 size={16} />
@@ -352,9 +362,14 @@ export function FlashcardsTab({
                     type="button"
                     className="btn-outline"
                     onClick={() => {
+                      const removesCurrent = filter === 'mastered';
                       onMarkRadical(rad.id, false);
                       setFlipped(false);
-                      setIndex((i) => (i + 1) % filteredRadicals.length);
+                      if (removesCurrent) {
+                        setIndex((i) => (i >= filteredRadicals.length - 1 ? 0 : i));
+                      } else {
+                        setIndex((i) => (i + 1) % filteredRadicals.length);
+                      }
                     }}
                   >
                     <RotateCcw size={16} />
@@ -364,9 +379,14 @@ export function FlashcardsTab({
                     type="button"
                     className="btn-jade"
                     onClick={() => {
+                      const removesCurrent = filter === 'unmastered' || filter === 'review';
                       onMarkRadical(rad.id, true);
                       setFlipped(false);
-                      setIndex((i) => (i + 1) % filteredRadicals.length);
+                      if (removesCurrent) {
+                        setIndex((i) => (i >= filteredRadicals.length - 1 ? 0 : i));
+                      } else {
+                        setIndex((i) => (i + 1) % filteredRadicals.length);
+                      }
                     }}
                   >
                     <CheckCircle2 size={16} />

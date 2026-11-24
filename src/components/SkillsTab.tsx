@@ -346,16 +346,18 @@ export function SkillsTab({ progress, activeSkill, onChangeSkill, onMarkSkill, p
                 </button>
               </div>
 
-              <div className="transcript-toggle-row">
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={() => setShowTranscript((s) => !s)}
-                >
-                  {showTranscript ? <EyeOff size={15} /> : <Eye size={15} />}
-                  <span>{showTranscript || answered ? 'ซ่อนบทพูด' : 'ดูบทพูดภาษาจีน (ตัวช่วย)'}</span>
-                </button>
-              </div>
+              {!answered && (
+                <div className="transcript-toggle-row">
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={() => setShowTranscript((s) => !s)}
+                  >
+                    {showTranscript ? <EyeOff size={15} /> : <Eye size={15} />}
+                    <span>{showTranscript ? 'ซ่อนบทพูด' : 'ดูบทพูดภาษาจีน (ตัวช่วย)'}</span>
+                  </button>
+                </div>
+              )}
 
               {(showTranscript || answered) && (
                 <div className="quiz-zh-box">

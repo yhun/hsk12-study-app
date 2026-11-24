@@ -29,7 +29,14 @@ import {
   SPEAKING_ITEMS,
   WRITING_CHARS,
 } from '../data/skills';
-import { SessionMinutes, SkillMode, UserProgress } from '../data/types';
+import {
+  AntonymPair,
+  Lesson,
+  QuizQuestion,
+  SessionMinutes,
+  SkillMode,
+  UserProgress,
+} from '../data/types';
 import { getLocalDateStr } from '../hooks/useProgress';
 import { SpeakButton } from './SpeakButton';
 
@@ -72,6 +79,9 @@ export function DailyTab({
 }: DailyTabProps) {
   const [runnerActive, setRunnerActive] = useState(false);
   const [phase, setPhase] = useState<'lesson' | 'antonym' | 'quiz' | 'done'>('lesson');
+  const [activeLessons, setActiveLessons] = useState<Lesson[]>([]);
+  const [activeAntonyms, setActiveAntonyms] = useState<AntonymPair[]>([]);
+  const [activeQuizzes, setActiveQuizzes] = useState<QuizQuestion[]>([]);
   const [lessonIdx, setLessonIdx] = useState(0);
   const [antIdx, setAntIdx] = useState(0);
   const [antFlipped, setAntFlipped] = useState(false);
@@ -82,13 +92,13 @@ export function DailyTab({
   const cfg = DURATION_CONFIG[progress.sessionMinutes];
 
   // Build today's mission items deterministically from current progress
-  const sessionLessons = useMemo(() => {
+  const previewLessons = useMemo(() => {
     const uncompleted = LESSONS.filter((l) => !progress.completedLessons.includes(l.id));
     const pool = uncompleted.length > 0 ? uncompleted : LESSONS;
     return pool.slice(0, cfg.lessons);
   }, [progress.completedLessons, cfg.lessons]);
 
-  const sessionAntonyms = useMemo(() => {
+  const previewAntonyms = useMemo(() => {
     const reviewFirst = ANTONYMS.filter((a) => progress.reviewAntonyms.includes(a.id));
     const unmastered = ANTONYMS.filter(
       (a) => !progress.masteredAntonyms.includes(a.id) && !progress.reviewAntonyms.includes(a.id)
@@ -104,7 +114,7 @@ export function DailyTab({
     return unique;
   }, [progress.reviewAntonyms, progress.masteredAntonyms, cfg.antonyms]);
 
-  const sessionQuizzes = useMemo(() => {
+  const previewQuizzes = useMemo(() => {
     const wrongFirst = QUIZZES.filter((q) => progress.wrongQuizIds.includes(q.id));
     const unsolved = QUIZZES.filter(
       (q) => !progress.solvedQuizIds.includes(q.id) && !progress.wrongQuizIds.includes(q.id)
@@ -136,6 +146,9 @@ export function DailyTab({
   }, [progress.studyDates]);
 
   const startSession = () => {
+    setActiveLessons(previewLessons);
+    setActiveAntonyms(previewAntonyms);
+    setActiveQuizzes(previewQuizzes);
     setRunnerActive(true);
     setPhase('lesson');
     setLessonIdx(0);
@@ -147,13 +160,13 @@ export function DailyTab({
   };
 
   if (runnerActive) {
-    if (phase === 'lesson') {
-      const lesson = sessionLessons[lessonIdx];
+    if (phase === 'lesson' && activeLessons[lessonIdx]) {
+      const lesson = activeLessons[lessonIdx];
       return (
         <div className="stack">
           <div className="runner-header">
             <span className="badge badge-red">
-              ขั้นที่ 1/3 · บทเรียน ({lessonIdx + 1}/{sessionLessons.length})
+              ขั้นที่ 1/3 · บทเรียน ({lessonIdx + 1}/{activeLessons.length})
             </span>
             <button type="button" className="btn-ghost" onClick={() => setRunnerActive(false)}>
               ออกชั่วคราว
@@ -208,7 +221,7 @@ export function DailyTab({
               className="btn-primary btn-block"
               onClick={() => {
                 onCompleteLesson(lesson.id, true);
-                if (lessonIdx + 1 < sessionLessons.length) {
+                if (lessonIdx + 1 < activeLessons.length) {
                   setLessonIdx((i) => i + 1);
                 } else {
                   setPhase('antonym');
@@ -216,7 +229,7 @@ export function DailyTab({
               }}
             >
               <span>
-                {lessonIdx + 1 < sessionLessons.length
+                {lessonIdx + 1 < activeLessons.length
                   ? 'เข้าใจแล้ว ไปบทถัดไป'
                   : 'เข้าใจแล้ว ไปทวนคำตรงข้าม →'}
               </span>
@@ -227,13 +240,13 @@ export function DailyTab({
       );
     }
 
-    if (phase === 'antonym') {
-      const pair = sessionAntonyms[antIdx];
+    if (phase === 'antonym' && activeAntonyms[antIdx]) {
+      const pair = activeAntonyms[antIdx];
       return (
         <div className="stack">
           <div className="runner-header">
             <span className="badge badge-jade">
-              ขั้นที่ 2/3 · คำตรงข้าม ({antIdx + 1}/{sessionAntonyms.length})
+              ขั้นที่ 2/3 · คำตรงข้าม ({antIdx + 1}/{activeAntonyms.length})
             </span>
             <button type="button" className="btn-ghost" onClick={() => setRunnerActive(false)}>
               ออกชั่วคราว
@@ -282,7 +295,7 @@ export function DailyTab({
               onClick={() => {
                 onMarkAntonym(pair.id, 'review');
                 setAntFlipped(false);
-                if (antIdx + 1 < sessionAntonyms.length) {
+                if (antIdx + 1 < activeAntonyms.length) {
                   setAntIdx((i) => i + 1);
                 } else {
                   setPhase('quiz');
@@ -298,7 +311,7 @@ export function DailyTab({
               onClick={() => {
                 onMarkAntonym(pair.id, 'mastered');
                 setAntFlipped(false);
-                if (antIdx + 1 < sessionAntonyms.length) {
+                if (antIdx + 1 < activeAntonyms.length) {
                   setAntIdx((i) => i + 1);
                 } else {
                   setPhase('quiz');
@@ -313,8 +326,8 @@ export function DailyTab({
       );
     }
 
-    if (phase === 'quiz') {
-      const q = sessionQuizzes[quizIdx];
+    if (phase === 'quiz' && activeQuizzes[quizIdx]) {
+      const q = activeQuizzes[quizIdx];
       const answered = selectedOpt !== null;
       const isCorrect = selectedOpt === q.answerIndex;
 
@@ -322,7 +335,7 @@ export function DailyTab({
         <div className="stack">
           <div className="runner-header">
             <span className="badge badge-amber">
-              ขั้นที่ 3/3 · ควิซวัดผล ({quizIdx + 1}/{sessionQuizzes.length})
+              ขั้นที่ 3/3 · ควิซวัดผล ({quizIdx + 1}/{activeQuizzes.length})
             </span>
             <button type="button" className="btn-ghost" onClick={() => setRunnerActive(false)}>
               ออกชั่วคราว
@@ -382,7 +395,7 @@ export function DailyTab({
                   className="btn-primary btn-block"
                   onClick={() => {
                     setSelectedOpt(null);
-                    if (quizIdx + 1 < sessionQuizzes.length) {
+                    if (quizIdx + 1 < activeQuizzes.length) {
                       setQuizIdx((i) => i + 1);
                     } else {
                       onFinishDailySession();
@@ -390,7 +403,7 @@ export function DailyTab({
                     }
                   }}
                 >
-                  {quizIdx + 1 < sessionQuizzes.length ? 'ข้อถัดไป →' : 'สรุปภารกิจวันนี้ 🎉'}
+                  {quizIdx + 1 < activeQuizzes.length ? 'ข้อถัดไป →' : 'สรุปภารกิจวันนี้ 🎉'}
                 </button>
               </div>
             )}
@@ -406,7 +419,7 @@ export function DailyTab({
         </div>
         <h2>เก่งมาก! ทำภารกิจวันนี้ครบแล้ว</h2>
         <p className="muted">
-          ตอบถูก {quizCorrectCount} จาก {sessionQuizzes.length} ข้อ · ความสม่ำเสมอคือกุญแจสอบผ่าน HSK!
+          ตอบถูก {quizCorrectCount} จาก {activeQuizzes.length} ข้อ · ความสม่ำเสมอคือกุญแจสอบผ่าน HSK!
         </p>
         <div className="streak-banner">
           <Flame size={22} />
@@ -485,7 +498,7 @@ export function DailyTab({
           <div className="preview-item">
             <BookOpen size={16} />
             <span>
-              <strong>{cfg.lessons} บทเรียน:</strong> {sessionLessons[0]?.title}
+              <strong>{cfg.lessons} บทเรียน:</strong> {previewLessons[0]?.title}
             </span>
           </div>
           <div className="preview-item">
@@ -513,11 +526,11 @@ export function DailyTab({
         <button
           type="button"
           className="quick-card"
-          onClick={() => onOpenLesson(sessionLessons[0].id)}
+          onClick={() => onOpenLesson(previewLessons[0].id)}
         >
           <span className="quick-label">บทถัดไปที่แนะนำ</span>
-          <strong>{sessionLessons[0]?.title}</strong>
-          <span className="muted">{sessionLessons[0]?.level} · {sessionLessons[0]?.pdfPages}</span>
+          <strong>{previewLessons[0]?.title}</strong>
+          <span className="muted">{previewLessons[0]?.level} · {previewLessons[0]?.pdfPages}</span>
         </button>
 
         <button
